@@ -2,7 +2,25 @@
 
 This PR implements the comprehensive location spoofing system as described in the Chinese problem statement ("Hook 点识别与注入策略"). 
 
-## Latest Enhancement: Concealment Improvements ✅
+## Latest Enhancement: Android 16 Compatibility ✅
+
+**User Request**: "适配Android16"
+
+**Changes Made**:
+- Updated `compileSdk` to 36 (Android 16) in all modules:
+  - `app/build.gradle.kts`
+  - `xposed/build.gradle.kts`
+  - `system-api/build.gradle.kts`
+- Updated `targetSdk` to 36 in app module
+- All existing version checks use `>=` operators, ensuring forward compatibility
+- Code is ready for Android 16 APIs when they become available
+
+**Files Modified**: 
+- `app/build.gradle.kts`
+- `xposed/build.gradle.kts`
+- `system-api/build.gradle.kts`
+
+## Previous Enhancement: Concealment Improvements ✅
 
 **User Request**: "隐蔽性增强，移除可被检测的extra参数等特征"
 

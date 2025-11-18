@@ -4,6 +4,12 @@
 
 This document describes the implementation of the enhanced location spoofing system based on the technical specification.
 
+### Platform Compatibility
+- **Minimum SDK**: Android 8.0 (API 26)
+- **Target SDK**: Android 16 (API 36)
+- **Compile SDK**: Android 16 (API 36)
+- **Tested on**: Android 8.0 - Android 16 Preview
+
 ## Architecture Overview
 
 The system consists of three main components:

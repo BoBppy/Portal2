@@ -227,4 +227,30 @@ var Context.loopBroadcastlocation: Boolean
         FakeLoc.loopBroadcastLocation = value
     }
 
+/**
+ * 运动模式设置 (STATIC, WALKING, RUNNING, DRIVING)
+ */
+var Context.movementMode: String
+    get() = sharedPrefs.getString("movementMode", "STATIC") ?: "STATIC"
+    set(value) = sharedPrefs.edit {
+        putString("movementMode", value)
+    }
+
+/**
+ * 步频设置（步/分钟）
+ */
+var Context.stepFrequency: Int
+    get() = sharedPrefs.getInt("stepFrequency", 120)
+    set(value) = sharedPrefs.edit {
+        putInt("stepFrequency", value)
+    }
+
+/**
+ * 目标应用包名列表（用于选择性欺骗）
+ */
+var Context.targetPackages: Set<String>
+    get() = sharedPrefs.getStringSet("targetPackages", emptySet()) ?: emptySet()
+    set(value) = sharedPrefs.edit {
+        putStringSet("targetPackages", value)
+    }
 

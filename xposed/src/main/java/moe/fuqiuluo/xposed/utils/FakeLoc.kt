@@ -27,6 +27,13 @@ object FakeLoc {
     var enable = false
 
     /**
+     * 目标应用包名列表（用于选择性欺骗）
+     * 空列表表示欺骗所有应用
+     */
+    @Volatile
+    var targetPackages = mutableSetOf<String>()
+
+    /**
      * 模拟Gnss卫星数据开关
      */
     @Volatile
@@ -129,6 +136,28 @@ object FakeLoc {
             }
         }
 
+    /**
+     * 运动模式：STATIC(静止), WALKING(步行), RUNNING(跑步), DRIVING(驾驶)
+     */
+    enum class MovementMode {
+        STATIC,
+        WALKING,
+        RUNNING,
+        DRIVING
+    }
+
+    /**
+     * 当前运动模式
+     */
+    @Volatile
+    var movementMode = MovementMode.STATIC
+
+    /**
+     * 步频（步/分钟）- 用于传感器模拟
+     */
+    @Volatile
+    var stepFrequency = 120
+
     fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
         val radius = 6371000.0
         val phi1 = Math.toRadians(lat1)
@@ -177,5 +206,24 @@ object FakeLoc {
         bearing = (bearing + 360) % 360  // 标准化到0-360度
 
         return bearing
+    }
+
+    /**
+     * 检查指定的UID是否应该被欺骗
+     * @param uid 调用者UID
+     * @return true 如果应该被欺骗，false 否则
+     */
+    fun shouldSpoofUid(uid: Int): Boolean {
+        if (!enable) return false
+        
+        // 系统应用不欺骗
+        if (BinderUtils.isSystemAppsCall(uid)) return false
+        
+        // 如果目标包名列表为空，欺骗所有非系统应用
+        if (targetPackages.isEmpty()) return true
+        
+        // 检查UID对应的包名是否在目标列表中
+        val packageNames = BinderUtils.getUidPackageNames(uid = uid) ?: return false
+        return packageNames.any { it in targetPackages }
     }
 }

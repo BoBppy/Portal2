@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "moe.fuqiuluo.hardcoder"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24

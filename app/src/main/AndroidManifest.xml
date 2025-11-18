@@ -81,6 +81,14 @@
             android:name="xposedscope"
             android:resource="@array/xposed_scope" />
 
+        <!-- ContentProvider for IPC between app and xposed module -->
+        <provider
+            android:name=".provider.LocationConfigProvider"
+            android:authorities="moe.fuqiuluo.portal.provider.location"
+            android:enabled="true"
+            android:exported="true"
+            android:grantUriPermissions="true" />
+
         <!-- 配置Bugly -->
         <!-- 配置APP ID -->
         <meta-data

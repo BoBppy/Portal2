@@ -248,7 +248,103 @@ class SettingsFragment : Fragment() {
             requireContext().loopBroadcastlocation = isChecked
             showToast("重启模拟生效")
         }
+
+        // Movement Mode Setting
+        binding.movementModeValue.text = getMovementModeDisplayName(context.movementMode)
+        binding.movementModeLayout.setOnClickListener {
+            val modes = arrayOf("静止", "步行", "跑步", "驾驶")
+            val modeValues = arrayOf("STATIC", "WALKING", "RUNNING", "DRIVING")
+            val currentIndex = modeValues.indexOf(context.movementMode).let { if (it < 0) 0 else it }
+            
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("选择运动模式")
+                .setSingleChoiceItems(modes, currentIndex) { dialog, which ->
+                    context.movementMode = modeValues[which]
+                    binding.movementModeValue.text = modes[which]
+                    showToast("运动模式已设置为${modes[which]}")
+                    updateRemoteConfig()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("取消", null)
+                .show()
+        }
+
+        // Step Frequency Setting
+        binding.stepFrequencyValue.text = "%d步/分".format(context.stepFrequency)
+        binding.stepFrequencyLayout.setOnClickListener {
+            showDialog("设置步频", binding.stepFrequencyValue.text.toString().let {
+                it.substring(0, it.length - 3)
+            }) {
+                val value = it.toIntOrNull()
+                if (value == null || value < 60) {
+                    showToast("步频不合法（最小60步/分）")
+                    return@showDialog
+                } else if (value > 240) {
+                    showToast("步频不合法（最大240步/分）")
+                    return@showDialog
+                }
+                context.stepFrequency = value
+                binding.stepFrequencyValue.text = "%d步/分".format(value)
+                showToast("步频已设置")
+                updateRemoteConfig()
+            }
+        }
+
+        // Target Packages Setting
+        binding.targetPackagesValue.text = getTargetPackagesDisplayText(context.targetPackages)
+        binding.targetPackagesLayout.setOnClickListener {
+            showTargetPackagesDialog()
+        }
+
         return root
+    }
+
+    private fun getMovementModeDisplayName(mode: String): String {
+        return when (mode) {
+            "STATIC" -> "静止"
+            "WALKING" -> "步行"
+            "RUNNING" -> "跑步"
+            "DRIVING" -> "驾驶"
+            else -> "静止"
+        }
+    }
+
+    private fun getTargetPackagesDisplayText(packages: Set<String>): String {
+        return if (packages.isEmpty()) {
+            "全部应用"
+        } else {
+            "${packages.size}个应用"
+        }
+    }
+
+    private fun showTargetPackagesDialog() {
+        val context = requireContext()
+        val currentPackages = context.targetPackages.toMutableSet()
+        val input = android.widget.EditText(context)
+        input.hint = "输入包名，多个用逗号分隔"
+        input.setText(currentPackages.joinToString(","))
+        
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("设置目标应用")
+            .setMessage("输入需要欺骗的应用包名\n留空表示欺骗所有应用\n多个包名用逗号分隔")
+            .setView(input)
+            .setPositiveButton("保存") { _, _ ->
+                val packageText = input.text.toString().trim()
+                val newPackages = if (packageText.isEmpty()) {
+                    emptySet()
+                } else {
+                    packageText.split(",")
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() }
+                        .toSet()
+                }
+                context.targetPackages = newPackages
+                binding.targetPackagesValue.text = getTargetPackagesDisplayText(newPackages)
+                showToast("目标应用已更新")
+                updateRemoteConfig()
+            }
+            .setNegativeButton("取消", null)
+            .show()
     }
 
     private fun showToast(message: String) {

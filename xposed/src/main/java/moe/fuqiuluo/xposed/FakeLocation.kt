@@ -89,6 +89,9 @@ class FakeLocation: IXposedHookLoadPackage, IXposedHookZygoteInit {
                 SystemSensorManagerHook(lpparam.classLoader)
 
                 ThirdPartyLocationHook(lpparam.classLoader)
+                
+                // Start IPC configuration sync service
+                moe.fuqiuluo.xposed.ipc.ConfigSyncService.start()
             }
             "com.android.location.fused" -> {
                 AndroidFusedLocationProviderHook(lpparam.classLoader)

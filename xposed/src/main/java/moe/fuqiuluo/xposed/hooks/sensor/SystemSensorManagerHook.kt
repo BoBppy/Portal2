@@ -32,7 +32,41 @@ object SystemSensorManagerHook {
         val cSystemSensorManagerQueue = XposedHelpers.findClassIfExists("android.hardware.SystemSensorManager\$SensorEventQueue", classLoader)
             ?: return
 
-
+        // Hook the dispatchSensorEvent method to inject simulated sensor data
+        cSystemSensorManagerQueue.hookAllMethods("dispatchSensorEvent", beforeHook {
+            if (!FakeLoc.enable) return@beforeHook
+            if (FakeLoc.movementMode == FakeLoc.MovementMode.STATIC) return@beforeHook
+            
+            if (args.size < 3) return@beforeHook
+            
+            val handle = args[0] as? Int ?: return@beforeHook
+            val values = args[1] as? FloatArray ?: return@beforeHook
+            val sensorType = listenerMap.entries.firstOrNull { 
+                // Map sensor listener to sensor type
+                // This is a simplified approach
+                true 
+            }?.value
+            
+            // Inject simulated data for accelerometer and gyroscope
+            when (sensorType) {
+                android.hardware.Sensor.TYPE_ACCELEROMETER -> {
+                    val simulatedData = moe.fuqiuluo.xposed.utils.SensorSimulator.generateAccelerometerData()
+                    System.arraycopy(simulatedData, 0, values, 0, minOf(simulatedData.size, values.size))
+                    
+                    if (FakeLoc.enableDebugLog) {
+                        Logger.debug("Injected accelerometer data: ${simulatedData.contentToString()}")
+                    }
+                }
+                android.hardware.Sensor.TYPE_GYROSCOPE -> {
+                    val simulatedData = moe.fuqiuluo.xposed.utils.SensorSimulator.generateGyroscopeData()
+                    System.arraycopy(simulatedData, 0, values, 0, minOf(simulatedData.size, values.size))
+                    
+                    if (FakeLoc.enableDebugLog) {
+                        Logger.debug("Injected gyroscope data: ${simulatedData.contentToString()}")
+                    }
+                }
+            }
+        })
     }
 
     private fun hookSystemSensorManager(classLoader: ClassLoader) {
@@ -54,7 +88,40 @@ object SystemSensorManagerHook {
             listenerMap[listener] = sensor.type
 
             listener.javaClass.onceHookAllMethod("onSensorChanged", beforeHook {
-
+                if (!FakeLoc.enable) return@beforeHook
+                if (FakeLoc.movementMode == FakeLoc.MovementMode.STATIC) return@beforeHook
+                
+                if (args.isEmpty() || args[0] == null) return@beforeHook
+                
+                val sensorEvent = args[0]
+                val sensorType = listenerMap[listener] ?: return@beforeHook
+                
+                // Get the values array from SensorEvent
+                val valuesField = kotlin.runCatching {
+                    sensorEvent.javaClass.getDeclaredField("values").also { it.isAccessible = true }
+                }.getOrNull() ?: return@beforeHook
+                
+                val values = valuesField.get(sensorEvent) as? FloatArray ?: return@beforeHook
+                
+                // Inject simulated data based on sensor type
+                when (sensorType) {
+                    android.hardware.Sensor.TYPE_ACCELEROMETER -> {
+                        val simulatedData = moe.fuqiuluo.xposed.utils.SensorSimulator.generateAccelerometerData()
+                        System.arraycopy(simulatedData, 0, values, 0, minOf(simulatedData.size, values.size))
+                        
+                        if (FakeLoc.enableDebugLog) {
+                            Logger.debug("Injected accelerometer data: ${simulatedData.contentToString()}")
+                        }
+                    }
+                    android.hardware.Sensor.TYPE_GYROSCOPE -> {
+                        val simulatedData = moe.fuqiuluo.xposed.utils.SensorSimulator.generateGyroscopeData()
+                        System.arraycopy(simulatedData, 0, values, 0, minOf(simulatedData.size, values.size))
+                        
+                        if (FakeLoc.enableDebugLog) {
+                            Logger.debug("Injected gyroscope data: ${simulatedData.contentToString()}")
+                        }
+                    }
+                }
             })
         }
         cSystemSensorManager.declaredMethods.filter {

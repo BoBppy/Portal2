@@ -86,13 +86,6 @@ abstract class BaseLocationHook: BaseDivineService() {
         originLocation.extras?.let {
             location.extras = it
         }
-        if (location.extras == null) {
-            location.extras = Bundle()
-        }
-        location.extras?.putDouble("latlon", location.latitude + location.longitude)
-        location.extras?.putInt("satellites", Random.nextInt(8, 45))
-        location.extras?.putInt("maxCn0", Random.nextInt(30, 50))
-        location.extras?.putInt("meanCn0", Random.nextInt(20, 30))
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             if (originLocation.hasMslAltitude()) {
@@ -102,16 +95,10 @@ abstract class BaseLocationHook: BaseDivineService() {
                 location.mslAltitudeAccuracyMeters = FakeLoc.altitude.toFloat()
             }
         }
-        if (FakeLoc.hideMock) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                location.isMock = false
-            }
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                location.isMock = true
-            }
-            location.extras?.putBoolean("portal.enable", true)
-            location.extras?.putBoolean("is_mock", true)
+        
+        // Always hide mock detection to enhance concealment
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            location.isMock = false
         }
 
         kotlin.runCatching {

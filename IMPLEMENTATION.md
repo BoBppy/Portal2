@@ -222,7 +222,9 @@ The following hooks were already implemented in the original codebase:
 ## Detection Avoidance
 
 ### Level 1: API Detection
-- ✅ `isMock` / `isFromMockProvider` always returns `false` when `FakeLoc.hideMock = true`
+- ✅ `isMock` / `isFromMockProvider` always returns `false` (enhanced in latest version)
+- ✅ No detectable extras added to Location objects (portal.enable, is_mock removed)
+- ✅ No custom satellite/signal strength extras that could fingerprint the module
 
 ### Level 2: Permission Detection  
 - ✅ No mock location permissions required

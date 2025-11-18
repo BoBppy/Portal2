@@ -33,15 +33,7 @@ The purpose of this application is to help developers debug the simulation tool 
 ## How to detect **Portal**?
 
 - **Portal** will create a notification when it is running, and you can check the notification to see if **Portal** is running.
-- **Portal** will add extra to the `Location`, you can check it to see if **Portal** is running.
-
-```kotlin
-if (location.extras == null) {
-    location.extras = Bundle()
-}
-location.extras?.putBoolean("portal.enable", true)
-location.extras?.putBoolean("is_mock", true)
-```
+- Detection via location extras has been removed to enhance concealment.
 
 # Features
 

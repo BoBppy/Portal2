@@ -2,6 +2,23 @@
 
 This PR implements the comprehensive location spoofing system as described in the Chinese problem statement ("Hook 点识别与注入策略"). 
 
+## Latest Enhancement: Concealment Improvements ✅
+
+**User Request**: "隐蔽性增强，移除可被检测的extra参数等特征"
+
+**Changes Made**:
+- Removed all detectable extras from Location objects:
+  - `portal.enable` extra (previously added when hideMock was false)
+  - `is_mock` extra (previously added when hideMock was false)
+  - `latlon` custom extra
+  - `satellites` custom extra
+  - `maxCn0` and `meanCn0` custom extras
+- Changed `isMock` to always be `false` (previously conditional on `FakeLoc.hideMock`)
+- Updated README.md to reflect that detection via extras is no longer possible
+- Enhanced documentation to highlight improved concealment
+
+**File Modified**: `xposed/src/main/java/moe/fuqiuluo/xposed/BaseLocationHook.kt`
+
 ## What Was Implemented
 
 ### 1. UID-Based Selective Spoofing ✅

@@ -22,6 +22,9 @@ import moe.fuqiuluo.portal.ext.needDowngradeToCdma
 import moe.fuqiuluo.portal.ext.speed
 import moe.fuqiuluo.portal.ext.reportDuration
 import moe.fuqiuluo.portal.ext.loopBroadcastlocation
+import moe.fuqiuluo.portal.ext.movementMode
+import moe.fuqiuluo.portal.ext.stepFrequency
+import moe.fuqiuluo.portal.ext.targetPackages
 import moe.fuqiuluo.xposed.utils.FakeLoc
 import java.io.File
 
@@ -339,6 +342,11 @@ object MockServiceHelper {
         rely.putBoolean("enable_nmea", FakeLoc.enableNMEA)
         rely.putBoolean("disable_request_geofence", FakeLoc.disableRequestGeofence)
         rely.putBoolean("disable_get_from_location", FakeLoc.disableGetFromLocation)
+        
+        // New settings for movement simulation and selective spoofing
+        rely.putString("movement_mode", context.movementMode)
+        rely.putInt("step_frequency", context.stepFrequency)
+        rely.putString("target_packages", context.targetPackages.joinToString(","))
 
         return locationManager.sendExtraCommand(PROVIDER_NAME, randomKey, rely)
     }
